@@ -1,0 +1,14 @@
+# SeedVR2-GGUF 额外依赖
+# ======================
+# 仅在启用 SeedVR2 引擎时需要安装。
+# 基础依赖 (requirements.txt) 仍需安装。
+#
+# 注意: SeedVR2 引擎自身的依赖由 setup_seedvr2.py 自动安装。
+# 以下仅列出本项目额外需要的包。
+
+# PyTorch (需要 CUDA 支持)
+# 如果你已经安装了 PyTorch，可以跳过这一行。
+# pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
+
+# HuggingFace Hub (用于模型下载)
+huggingface_hub>=0.20.0
