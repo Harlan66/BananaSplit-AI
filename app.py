@@ -58,6 +58,13 @@ def main():
         st.header("⚙️ 任务设置")
         task_name = st.text_input("任务名称 (Task Name)", value="MyProject", help="用于生成文件名的前缀")
         
+        st.subheader("切分设置 (Grid)")
+        col_r, col_c = st.columns(2)
+        with col_r:
+            rows = st.number_input("行数 (Rows)", min_value=1, value=3, step=1)
+        with col_c:
+            cols = st.number_input("列数 (Cols)", min_value=1, value=3, step=1)
+        
         st.subheader("输出设置")
         res_mode = st.selectbox(
             "目标分辨率 (单图长边)", 
@@ -167,7 +174,9 @@ def main():
                 process_images(
                     uploaded_files, task_name, target_res,
                     use_seedvr2=use_seedvr2 and seedvr2_available,
-                    seedvr2_config=seedvr2_config
+                    seedvr2_config=seedvr2_config,
+                    rows=rows,
+                    cols=cols
                 )
 
     # [Results] 结果展示区
@@ -182,7 +191,7 @@ def main():
                     st.image(res['preview'], width=100)
                 with c2:
                     st.write(f"**任务ID**: {res['task_id']}")
-                    st.write(f"**包含文件**: 9张高清图")
+                    st.write(f"**包含文件**: {rows*cols}张高清图 ({rows}x{cols})")
                     
                     with open(res['zip_path'], "rb") as fp:
                         btn = st.download_button(
@@ -192,7 +201,7 @@ def main():
                             mime="application/zip"
                         )
 
-def process_images(files, task_name, target_res=None, use_seedvr2=False, seedvr2_config=None):
+def process_images(files, task_name, target_res=None, use_seedvr2=False, seedvr2_config=None, rows=3, cols=3):
     st.session_state.results = []
     
     # 初始化进度条
@@ -247,7 +256,7 @@ def process_images(files, task_name, target_res=None, use_seedvr2=False, seedvr2
         status_text.text(f"正在处理 [{idx+1}/{total_files}]: {uploaded_file.name} - 切分中...")
         
         # 2. 切分
-        tiles = splitter.split_3x3(input_path, task_name)
+        tiles = splitter.split_grid(input_path, task_name, rows=rows, cols=cols)
         
         # 3. 增强
         enhanced_tiles = []
@@ -275,7 +284,7 @@ def process_images(files, task_name, target_res=None, use_seedvr2=False, seedvr2
             "filename": uploaded_file.name,
             "task_id": f"{task_name}_{current_seq}",
             "zip_path": zip_path,
-            "preview": enhanced_tiles[4]['image'] # 预览中间那张
+            "preview": enhanced_tiles[len(enhanced_tiles)//2]['image'] # 预览中间那张
         })
         
     status_text.success("🎉 所有图片处理完成！请在下方下载。")

@@ -34,6 +34,14 @@ def main():
         "--model", default=None,
         help="GGUF 模型文件名 (仅 SeedVR2, 默认: seedvr2_ema_3b-Q4_K_M.gguf)"
     )
+    parser.add_argument(
+        "--rows", type=int, default=3,
+        help="Grid rows (default: 3)"
+    )
+    parser.add_argument(
+        "--cols", type=int, default=3,
+        help="Grid columns (default: 3)"
+    )
     args = parser.parse_args()
 
     print("🚀 初始化九宫格图像处理工作流...")
@@ -84,8 +92,8 @@ def main():
         print(f"\n[{current_seq}/{len(input_files)}] 正在处理: {filename} ...")
         
         # Step 1: 裁切
-        print(f"   ✂️ 正在切分九宫格...")
-        tiles = splitter.split_3x3(file_path, task_name)
+        print(f"   ✂️ 正在切分 {args.rows}x{args.cols} 网格...")
+        tiles = splitter.split_grid(file_path, task_name, rows=args.rows, cols=args.cols)
         if not tiles:
             print(f"   ❌ 切分失败，跳过此文件。")
             continue
